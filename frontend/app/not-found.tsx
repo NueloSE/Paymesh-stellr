@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
 export default function NotFound() {
   return (
     <div 
@@ -25,7 +28,7 @@ export default function NotFound() {
         </h1>
       </div>
 
-      <div className="relative z-10 px-6 max-w-[1151px] mx-auto flex items-center justify-center">
+      <div className="relative z-10 px-6 max-w-[1151px] mx-auto flex flex-col items-center justify-center gap-8">
         <h3 
           className="font-anton font-bold text-xl sm:text-4xl md:text-5xl lg:text-[50px] xl:text-[60px] leading-tight uppercase text-center"
           style={{
@@ -37,6 +40,12 @@ export default function NotFound() {
         >
           We looked everywhere on-chain but couldn't find that page.
         </h3>
+        
+        <Link href="/">
+          <Button variant="primary" size="lg">
+            Return to Home
+          </Button>
+        </Link>
       </div>
     </div>
   );
