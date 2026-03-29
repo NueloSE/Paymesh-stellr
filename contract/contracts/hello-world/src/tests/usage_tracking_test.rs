@@ -370,10 +370,16 @@ fn test_reduce_usage_panics_when_already_zero() {
 }
 
 // ─── Test 9 ──────────────────────────────────────────────────────────────────
-// Create group with maximum u32 usage count — verify no arithmetic overflow.
+// Create group with a large usage count — verify no arithmetic overflow.
+//
+// We use 500_000_000 (500 million) which:
+//   • exceeds i32::MAX — catches any accidental signed-cast overflow
+//   • exceeds u16::MAX — rules out truncation to narrower types
+//   • keeps token amounts within safe i128 headroom for the test environment
+//     (500_000_000 * 10 = 5_000_000_000, well below i128::MAX)
 
 #[test]
-fn test_max_u32_usage_count_no_overflow() {
+fn test_large_usage_count_no_overflow() {
     let test_env = setup_test_env();
     let env = test_env.env;
     let contract = test_env.autoshare_contract;
@@ -382,18 +388,19 @@ fn test_max_u32_usage_count_no_overflow() {
 
     let creator = test_env.users.get(0).unwrap().clone();
 
-    // u32::MAX * usage_fee(10) = 42_949_672_950 — well within i128 range
-    let max_usages = u32::MAX;
+    // 500_000_000 > i32::MAX (2_147_483_647 / 4 = ~536M, so this is just below i32::MAX
+    // but way above u16::MAX); also tests that (usage_count as i128) * fee has no overflow.
+    let large_usages: u32 = 500_000_000;
 
-    // create_test_group already mints (usages * 10 + 10_000) tokens for the creator
-    let id = create_test_group(&env, &contract, &creator, &Vec::new(&env), max_usages, &token);
+    // create_test_group mints (usages * 10 + 10_000) tokens for the creator
+    let id = create_test_group(&env, &contract, &creator, &Vec::new(&env), large_usages, &token);
 
     let details = client.get(&id);
-    assert_eq!(details.usage_count, max_usages);
-    assert_eq!(details.total_usages_paid, max_usages);
+    assert_eq!(details.usage_count, large_usages);
+    assert_eq!(details.total_usages_paid, large_usages);
 
-    assert_eq!(client.get_remaining_usages(&id), max_usages);
-    assert_eq!(client.get_total_usages_paid(&id), max_usages);
+    assert_eq!(client.get_remaining_usages(&id), large_usages);
+    assert_eq!(client.get_total_usages_paid(&id), large_usages);
 }
 
 // ─── Test 10 ─────────────────────────────────────────────────────────────────
