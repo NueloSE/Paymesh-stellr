@@ -1150,3 +1150,8 @@ mod protocol_fee_boundary_test;
 #[cfg(test)]
 #[path = "tests/deposit_funds_test.rs"]
 mod deposit_funds_test;
+
+#[cfg(test)]
+#[path = "tests/add_member_to_group_boundary_test.rs"]
+mod add_member_to_group_boundary_test;
+
